@@ -1,100 +1,120 @@
 {% extends 'dashboard/base.html' %}
-{% block title %}Book an appointment{% endblock %}
+{% block title %}Book Now | Smart Appointment Scheduler{% endblock %}
 
 {% block content %}
-<section class="section">
-  <div class="container booking-shell">
-    <div class="panel">
-      <span class="eyebrow">Book now</span>
-      <h2 style="margin: 14px 0 18px; font-size: 2rem; letter-spacing: -0.05em;">Choose your appointment</h2>
-
-      <form method="get" action="/book/">
-        <div class="field">
-          <label for="service">Service</label>
-          <select id="service" name="service" onchange="this.form.submit()">
-            <option value="">Select a service</option>
-            {% for service in services %}
-              <option value="{{ service.pk }}" {% if selected_service and selected_service.pk == service.pk %}selected{% endif %}>{{ service.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="staff">Doctor / specialist</label>
-          <select id="staff" name="staff" onchange="this.form.submit()">
-            <option value="">Select a specialist</option>
-            {% for staff in staff_members %}
-              <option value="{{ staff.pk }}" {% if selected_staff and selected_staff.pk == staff.pk %}selected{% endif %}>{{ staff.name }}{% if staff.specialization %} — {{ staff.specialization }}{% endif %}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="date">Date</label>
-          <input type="date" id="date" name="date" value="{{ selected_date|default:'' }}" onchange="this.form.submit()" />
-        </div>
-      </form>
-
-      {% if selected_service and selected_staff and selected_date %}
-        <div style="margin-top: 20px;">
-          <h3 style="margin: 0 0 12px;">Available slots</h3>
-          {% if slots %}
-          <div class="slot-grid">
-            {% for slot in slots %}
-              <label class="slot">
-                <input type="radio" name="start_time" value="{{ slot.start_time }}" form="booking-form" />
-                {{ slot.start_time }}
-              </label>
-            {% endfor %}
-          </div>
-          {% else %}
-          <div class="alert">No availability is currently open for this specialist on that day. Please choose another date or time.</div>
-          {% endif %}
-        </div>
-      {% endif %}
+{% if booking_gate %}
+<section class="gate-band">
+  <div class="container gate-layout">
+    <div class="gate-copy">
+      <span class="eyebrow">Client booking</span>
+      <h1>Log in to book with your salon</h1>
+      <p>Appointments are available to verified clients who belong to a salon. Log in to continue, or register with the Org Code your salon shared.</p>
+      <div class="gate-actions">
+        <a class="button button-primary" href="/login/?as=client">Log in</a>
+        <a class="button button-secondary" href="/register/client/">Register as Client</a>
+      </div>
     </div>
-
-    <div class="panel">
-      <span class="eyebrow">Appointment details</span>
-      <h3 style="margin: 14px 0 18px; font-size: 1.6rem; letter-spacing: -0.04em;">Complete your booking</h3>
-
-      {% if errors %}
-        <div class="alert">
-          {% for error in errors %}
-            <div>{{ error }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-
-      <form id="booking-form" method="post" action="/book/">
-        {% csrf_token %}
-        <input type="hidden" name="service" value="{{ selected_service.pk|default:'' }}" />
-        <input type="hidden" name="staff" value="{{ selected_staff.pk|default:'' }}" />
-        <input type="hidden" name="date" value="{{ selected_date|default:'' }}" />
-
-        <div class="field">
-          <label for="customer_name">Full name</label>
-          <input id="customer_name" name="customer_name" type="text" placeholder="Your full name" required />
-        </div>
-
-        <div class="field">
-          <label for="customer_email">Email</label>
-          <input id="customer_email" name="customer_email" type="email" placeholder="you@example.com" required />
-        </div>
-
-        <div class="field">
-          <label for="customer_phone">Phone</label>
-          <input id="customer_phone" name="customer_phone" type="tel" placeholder="9876543210" required />
-        </div>
-
-        <div class="field">
-          <label for="start_time">Selected slot</label>
-          <input id="start_time" name="start_time" type="time" step="1800" required value="09:00" />
-        </div>
-
-        <button class="cta" type="submit" style="width: 100%;">Confirm appointment</button>
-      </form>
+    <aside class="gate-aside">
+      <strong>Joining a salon?</strong>
+      <p>Ask the salon for its Org Code. Your account and bookings will stay connected to that organisation.</p>
+    </aside>
+  </div>
+</section>
+{% elif org_not_ready %}
+<section class="gate-band">
+  <div class="container gate-layout">
+    <div class="gate-copy">
+      <span class="eyebrow">Online booking</span>
+      <h1>{{ organisation.name }} is still getting set up</h1>
+      <p>Online booking will be available soon. Please contact the salon directly{% if organisation.phone %} at <a class="text-link" href="tel:{{ organisation.phone }}">{{ organisation.phone }}</a>{% endif %}.</p>
     </div>
   </div>
 </section>
+{% else %}
+<section class="booking-area">
+  <div class="container">
+    <header class="booking-heading">
+      <span class="eyebrow">{{ organisation.name }}{% if organisation.city %} · {{ organisation.city }}{% endif %}</span>
+      <h1>Book an appointment</h1>
+      <p>Choose a service, a team member and a time that works for you.</p>
+    </header>
+
+    {% if errors %}
+      <div class="error-notice" role="alert">
+        {% for error in errors %}<div>{{ error }}</div>{% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="booking-layout">
+      <section class="booking-panel" aria-labelledby="availability-heading">
+        <h2 id="availability-heading">Choose your appointment</h2>
+        <form method="get" action="/book/">
+          <div class="field">
+            <label for="service">Service</label>
+            <select id="service" name="service" onchange="this.form.submit()">
+              <option value="">Select a service</option>
+              {% for service in services %}
+                <option value="{{ service.pk }}" {% if selected_service and selected_service.pk == service.pk %}selected{% endif %}>{{ service.name }} · {{ service.duration_minutes }} min</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="staff">Team member</label>
+            <select id="staff" name="staff" onchange="this.form.submit()">
+              <option value="">Select a team member</option>
+              {% for staff in staff_members %}
+                <option value="{{ staff.pk }}" {% if selected_staff and selected_staff.pk == staff.pk %}selected{% endif %}>{{ staff.name }}{% if staff.specialization %} · {{ staff.specialization }}{% endif %}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" value="{{ selected_date|default:'' }}" min="{{ today }}" onchange="this.form.submit()" />
+          </div>
+        </form>
+
+        {% if selected_service and selected_staff and selected_date %}
+          <h3 style="margin: 22px 0 8px; font-size: 16px;">Available times</h3>
+          {% if slots %}
+            <div class="slot-list" role="radiogroup" aria-label="Available appointment times">
+              {% for slot in slots %}
+                <div class="slot-choice">
+                  <input id="slot-{{ forloop.counter }}" type="radio" name="start_time" value="{{ slot.start_time }}" form="booking-form" required />
+                  <label for="slot-{{ forloop.counter }}">{{ slot.start_time }}</label>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="slot-legend" aria-label="Time selection legend">
+              <span class="legend-item"><span class="legend-swatch"></span>Available</span>
+              <span class="legend-item"><span class="legend-swatch selected"></span>Selected</span>
+            </div>
+          {% else %}
+            <div class="notice" role="status">No times are available on this day. Choose another date to see more options.</div>
+          {% endif %}
+        {% else %}
+          <p class="field-hint">Choose a service, team member and date to see available times.</p>
+        {% endif %}
+      </section>
+
+      <section class="booking-panel" aria-labelledby="confirm-heading">
+        <h2 id="confirm-heading">Your details</h2>
+        <div class="profile-summary">
+          <strong>{{ request.user.full_name }}</strong>
+          <span>{{ request.user.email }}</span>
+          <span>{{ request.user.phone }}</span>
+          <a class="text-link" href="/profile/">Edit in profile</a>
+        </div>
+        <form id="booking-form" method="post" action="/book/">
+          {% csrf_token %}
+          <input type="hidden" name="service" value="{{ selected_service.pk|default:'' }}" />
+          <input type="hidden" name="staff" value="{{ selected_staff.pk|default:'' }}" />
+          <input type="hidden" name="date" value="{{ selected_date|default:'' }}" />
+          <button class="button button-primary" type="submit" {% if not selected_service or not selected_staff or not selected_date or not slots %}disabled aria-disabled="true"{% endif %}>Confirm booking</button>
+        </form>
+        <p class="field-hint" style="margin: 13px 0 0;">Your appointment will be attached to your client profile.</p>
+      </section>
+    </div>
+  </div>
+</section>
+{% endif %}
 {% endblock %}

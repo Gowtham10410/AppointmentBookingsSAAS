@@ -151,3 +151,11 @@ Bootstrap phase started. Repo skeleton, project docs and a MySQL bootstrap confi
 - Trace every CR-01 requirement to code/tests; attack tenancy, auth, email tokens, booking concurrency, privacy and data lifecycle; fix release blockers.
 - Risk: hidden tenant leaks through filters, nested routes, errors, logs or derived data.
 - Verification: attack matrix/fuzz tests, full test/lint/type/build/CI run, fresh-clone walkthrough and audit report. Release only with no open blocker.
+
+## Local CR-01 customer UI preview (2026-10-08)
+- Replaced the bootstrap clinic/rating page with the salon-focused home, exact logged-out navigation order, responsive mobile menu, Org Code journey and factual benefits; removed the API-health link and invented rating.
+- `/book/` now gates anonymous visitors; verified clients see only their organisation's service/staff choices and read-only profile details. Confirmation lookup is restricted to the owning client.
+- Added working owner/client registration, Org Code preview/lookup, email verification/resend, client/organisation portal login, and owner welcome page with Org Code/checklist for local interaction.
+- Verified account/template integration paths: `8 passed`; the full backend suite previously ran with `49 passed`. Ruff, mypy and Django checks passed before the final copy-only template adjustment; the template tests were rerun after that adjustment (`3 passed`).
+- Browser QA: home and booking gate at 390, 768 and 1440 CSS px; no horizontal overflow. Server is available at `http://127.0.0.1:8000/`.
+- Remaining CR-01 UI work: full Next.js BFF/profile/password reset, My Bookings and green slot-state flow, and the calendar/dashboard CRUD. These remain in M4–M6; the Django pages are a local test surface, not a claim that the full frontend phases are complete.

@@ -7,7 +7,7 @@
     <div class="success-box">
       <span class="eyebrow" style="background: rgba(15,123,83,0.12); color: var(--success);">Confirmed</span>
       <h1 style="font-size: 2.5rem; margin: 16px 0 10px;">Your appointment is confirmed.</h1>
-      <p>We have reserved your place and sent the booking details to your email.</p>
+      <p>Your appointment has been reserved. The details are below.</p>
 
       <ul class="list" style="margin-top: 24px;">
         <li><strong>Reference:</strong> {{ booking.reference }}</li>
@@ -18,8 +18,8 @@
       </ul>
 
       <div style="margin-top: 22px; display: flex; gap: 12px; flex-wrap: wrap;">
-        <a href="/" class="cta">Back home</a>
-        <a href="/book/" class="secondary">Book another slot</a>
+        <a href="/" class="button button-primary">Back home</a>
+        <a href="/book/" class="button button-secondary">Book another slot</a>
       </div>
     </div>
   </div>

@@ -1,0 +1,39 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Log in | Smart Appointment Scheduler{% endblock %}
+
+{% block content %}
+<section class="account-area">
+  <div class="container account-shell" style="max-width: 520px;">
+    <header class="account-heading">
+      <span class="eyebrow">Welcome back</span>
+      <h1>Log in to continue</h1>
+      <p>Choose the account type you use with your salon.</p>
+    </header>
+    <div class="account-card">
+      <nav class="portal-tabs" aria-label="Choose login portal">
+        <a class="portal-tab" href="{% url 'login' %}?as=client" {% if portal == 'client' %}aria-current="page"{% endif %}>Client</a>
+        <a class="portal-tab" href="{% url 'login' %}?as=organisation" {% if portal == 'organisation' %}aria-current="page"{% endif %}>Organisation</a>
+      </nav>
+      {% if error %}<div class="form-errors" role="alert">{{ error }}{% if 'verify your email' in error %} <a class="text-link" href="{% url 'check_email' %}">Resend email</a>{% endif %}</div>{% endif %}
+      <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <input type="hidden" name="portal" value="{{ portal }}" />
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required />
+        </div>
+        <div class="form-actions">
+          <button class="button button-primary" type="submit">Log in</button>
+        </div>
+      </form>
+      <p class="field-hint" style="margin: 18px 0 0;">
+        {% if portal == 'client' %}New to your salon? <a class="text-link" href="{% url 'register_client' %}">Register as Client</a>{% else %}Setting up your salon? <a class="text-link" href="{% url 'register_organisation' %}">Register as Organisation</a>{% endif %}
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

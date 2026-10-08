@@ -8,12 +8,14 @@ from .views import (
     list_services,
     list_staff,
     logout,
+    lookup_org,
     me,
     staff_slots,
 )
 
 urlpatterns = [
     path("healthz/", healthz, name="healthz"),
+    path("orgs/lookup/", lookup_org, name="orgs-lookup"),
     path("services/", list_services, name="services"),
     path("staff/", list_staff, name="staff-list"),
     path("staff/<int:pk>/slots/", staff_slots, name="staff-slots"),

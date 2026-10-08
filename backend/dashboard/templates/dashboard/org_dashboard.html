@@ -1,0 +1,51 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Welcome | {{ organisation.name }}{% endblock %}
+
+{% block content %}
+<section class="account-area">
+  <div class="container account-shell">
+    <header class="account-heading">
+      <span class="eyebrow">Organisation portal</span>
+      <h1>Welcome, {{ request.user.full_name }}</h1>
+      <p>Your organisation is ready to be set up. Share your code after adding services, staff and working hours.</p>
+    </header>
+    <section class="account-card" aria-labelledby="org-code-heading">
+      <span class="eyebrow">Your Org Code</span>
+      <h2 id="org-code-heading" style="margin-top: 10px;">{{ organisation.name }}</h2>
+      <output class="owner-code" id="org-code">{{ organisation.org_code }}</output>
+      <div class="path-actions">
+        <button class="button button-secondary" type="button" id="copy-code">Copy code</button>
+        <button class="button button-primary" type="button" id="copy-invite">Copy invite link</button>
+      </div>
+      <p id="copy-status" class="field-hint" role="status" aria-live="polite" style="margin: 12px 0 0;"></p>
+    </section>
+    <section class="section" style="padding-bottom: 0;">
+      <div class="section-heading">
+        <span class="eyebrow">Getting started</span>
+        <h2>Your setup checklist</h2>
+      </div>
+      <ol class="welcome-checklist">
+        <li><span class="welcome-state {% if service_count %}done{% endif %}" aria-hidden="true">{% if service_count %}✓{% else %}1{% endif %}</span><span>Add services{% if service_count %} · {{ service_count }} active{% endif %}</span></li>
+        <li><span class="welcome-state {% if staff_count %}done{% endif %}" aria-hidden="true">{% if staff_count %}✓{% else %}2{% endif %}</span><span>Add staff{% if staff_count %} · {{ staff_count }} active{% endif %}</span></li>
+        <li><span class="welcome-state {% if hours_count %}done{% endif %}" aria-hidden="true">{% if hours_count %}✓{% else %}3{% endif %}</span><span>Set working hours{% if hours_count %} · configured{% endif %}</span></li>
+        <li><span class="welcome-state" aria-hidden="true">4</span><span>Share your Org Code</span></li>
+      </ol>
+    </section>
+  </div>
+</section>
+<script>
+  (() => {
+    const code = document.getElementById("org-code").textContent.trim();
+    const status = document.getElementById("copy-status");
+    const invite = `${window.location.origin}/register/client/?org=${encodeURIComponent(code)}`;
+    document.getElementById("copy-code").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(code);
+      status.textContent = "Org Code copied";
+    });
+    document.getElementById("copy-invite").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(invite);
+      status.textContent = "Invite link copied";
+    });
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Verify your email | Smart Appointment Scheduler{% endblock %}
+
+{% block content %}
+<section class="account-area">
+  <div class="container account-shell" style="max-width: 600px;">
+    <div class="account-card">
+      {% if state == 'success' %}
+        <span class="eyebrow">Verified</span>
+        <h1 style="margin: 10px 0 12px; font-size: 36px;">Your email is verified</h1>
+        <p>You can log in to continue to your salon.</p>
+        <a class="button button-primary" href="{% url 'login' %}">Continue to log in</a>
+      {% elif state == 'expired' %}
+        <span class="eyebrow">Link expired</span>
+        <h1 style="margin: 10px 0 12px; font-size: 36px;">This link has expired</h1>
+        <p>We can send you a new verification link.</p>
+        <a class="button button-primary" href="{% url 'check_email' %}">Resend email</a>
+      {% else %}
+        <span class="eyebrow">Link unavailable</span>
+        <h1 style="margin: 10px 0 12px; font-size: 36px;">This link can't be used</h1>
+        <p>It may have already been used or copied incorrectly. Request a fresh verification email to continue.</p>
+        <a class="button button-primary" href="{% url 'check_email' %}">Resend email</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

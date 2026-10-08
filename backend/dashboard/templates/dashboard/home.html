@@ -2,75 +2,69 @@
 {% block title %}Home | Smart Appointment Scheduler{% endblock %}
 
 {% block content %}
-<section class="hero">
-  <div class="container hero-grid">
-    <div>
-      <span class="eyebrow">Better scheduling, fewer conflicts</span>
-      <h1>Smart appointment booking that feels effortless.</h1>
-      <p>Give customers a fast, clear way to book with the right clinician, while keeping business schedules conflict-free and easy to manage.</p>
-      <div class="hero-actions">
-        <a class="cta" href="/book/">Book a visit</a>
-        <a class="secondary" href="#services">Browse services</a>
-      </div>
-      <div class="stat-grid">
-        <div class="stat-card">
-          <strong>4.9/5</strong>
-          <span class="muted">average experience</span>
-        </div>
-        <div class="stat-card">
-          <strong>{{ staff_members|length }}</strong>
-          <span class="muted">active specialists</span>
-        </div>
-        <div class="stat-card">
-          <strong>{{ services|length }}</strong>
-          <span class="muted">care options</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="card stat-card">
-      <div class="eyebrow">Live availability</div>
-      <h3 style="margin: 14px 0 10px; font-size: 1.8rem; letter-spacing: -0.05em;">Today’s schedule</h3>
-      <ul class="list">
-        {% for item in recent_bookings %}
-        <li>
-          <div class="chip" style="margin-bottom: 6px;">{{ item.reference }}</div>
-          <div><strong>{{ item.service.name }}</strong> with {{ item.staff.name }}</div>
-          <div class="muted">{{ item.date }} at {{ item.start_time }}</div>
-        </li>
-        {% empty %}
-        <li class="muted">No confirmed bookings yet. Your clinic is ready for the first appointment.</li>
-        {% endfor %}
-      </ul>
+<section class="hero-band">
+  <div class="container">
+    <div class="hero-content">
+      <span class="eyebrow">For salons and their clients</span>
+      <h1>Appointments, without the back-and-forth.</h1>
+      <p>Your salon shares one Org Code with existing clients. They book from your real staff availability, and your schedule stays clear.</p>
     </div>
   </div>
 </section>
 
-<section class="section" id="services">
-  <div class="container">
-    <div class="section-head">
-      <div>
-        <span class="eyebrow">Popular services</span>
-        <h2 style="margin: 12px 0 0; font-size: 2rem; letter-spacing: -0.04em;">Tailored care that fits your day</h2>
+<section class="audience-band" aria-label="Choose your path">
+  <div class="container audience-grid">
+    <div class="audience-path">
+      <span class="eyebrow">For clients</span>
+      <h2>Book with your salon</h2>
+      <p>Use the Org Code your salon shared to create your client account and see its available appointments.</p>
+      <div class="path-actions">
+        <a class="button button-primary" href="/book/">Book Now</a>
+        <a class="text-link" href="/register/client/">Register as Client</a>
       </div>
-      <a href="/book/" class="secondary">Schedule a consultation</a>
     </div>
+    <div class="audience-path">
+      <span class="eyebrow">For salons</span>
+      <h2>Bring your schedule online</h2>
+      <p>Set up your organisation, add your team and services, then share your Org Code with your clients.</p>
+      <div class="path-actions">
+        <a class="text-link" href="/register/organisation/">Register as Organisation <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <div class="service-grid">
-      {% for service in services %}
-      <article class="service-item">
-        <div class="chip">{{ service.duration_minutes }} min</div>
-        <h3>{{ service.name }}</h3>
-        <p>{{ service.description|default:'Professional care designed around your schedule.' }}</p>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 18px;">
-          <strong>₹{{ service.price }}</strong>
-          <a href="/book/?service={{ service.pk }}" class="cta" style="padding: 10px 14px;">Book</a>
-        </div>
-      </article>
-      {% empty %}
-      <div class="card" style="padding: 20px; width: 100%;">No services are active right now.</div>
-      {% endfor %}
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="section-heading">
+      <span class="eyebrow">How it works</span>
+      <h2>A simple start for your salon</h2>
     </div>
+    <div class="steps">
+      <article class="step">
+        <span class="step-number">01</span>
+        <h3>Register your salon</h3>
+        <p>Add your organisation and location details, then verify the owner email.</p>
+      </article>
+      <article class="step">
+        <span class="step-number">02</span>
+        <h3>Set up your team</h3>
+        <p>Add services, staff and working hours so clients see the schedule you manage.</p>
+      </article>
+      <article class="step">
+        <span class="step-number">03</span>
+        <h3>Share your Org Code</h3>
+        <p>Existing clients join your organisation and book against its availability.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="benefits-band" aria-label="Booking benefits">
+  <div class="container benefit-list">
+    <div class="benefit"><span class="benefit-check" aria-hidden="true">✓</span><span>No double bookings</span></div>
+    <div class="benefit"><span class="benefit-check" aria-hidden="true">✓</span><span>Availability from your working hours</span></div>
+    <div class="benefit"><span class="benefit-check" aria-hidden="true">✓</span><span>Verified client accounts</span></div>
   </div>
 </section>
 {% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}{% if registration_type == 'client' %}Register as Client{% else %}Register as Organisation{% endif %}{% endblock %}
+
+{% block content %}
+<section class="account-area">
+  <div class="container account-shell">
+    <header class="account-heading">
+      <span class="eyebrow">{% if registration_type == 'client' %}Join your salon{% else %}Organisation setup{% endif %}</span>
+      <h1>{% if registration_type == 'client' %}Create your client account{% else %}Register your organisation{% endif %}</h1>
+      <p>{% if registration_type == 'client' %}Use the Org Code shared by your salon. We'll verify your email before you can book.{% else %}Create an owner account for your salon. We'll send a verification link before you can log in.{% endif %}</p>
+    </header>
+
+    <div class="account-card">
+      {% if form.errors %}
+        <div class="form-errors" role="alert">
+          {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+          {% if form.email.errors %}{{ form.email.errors }}{% endif %}
+          {% if form.password.errors %}{{ form.password.errors }}{% endif %}
+        </div>
+      {% endif %}
+      <form method="post" action="{% if registration_type == 'client' %}{% url 'register_client' %}{% else %}{% url 'register_organisation' %}{% endif %}">
+        {% csrf_token %}
+        {% if registration_type == 'client' %}
+          <div class="field field-full">
+            <label for="id_org_code">Org Code</label>
+            {{ form.org_code }}
+            {% if form.org_code.errors %}<div class="field-errors">{{ form.org_code.errors }}</div>{% endif %}
+          </div>
+          <div id="org-preview" class="org-preview" role="status" {% if not organisation_preview %}hidden{% endif %}>
+            {% if organisation_preview %}Joining <strong>{{ organisation_preview.name }}</strong>{% if organisation_preview.city %}, {{ organisation_preview.city }}{% endif %}{% if organisation_preview.state %}, {{ organisation_preview.state }}{% endif %}{% endif %}
+          </div>
+          <div id="org-lookup-error" class="field-errors" role="status" hidden>We couldn't find that code. Please check it with your salon.</div>
+        {% else %}
+          <h2>Your details</h2>
+        {% endif %}
+
+        <div class="form-grid">
+          <div class="field field-full">
+            <label for="id_full_name">Full name</label>
+            {{ form.full_name }}
+            {% if form.full_name.errors %}<div class="field-errors">{{ form.full_name.errors }}</div>{% endif %}
+          </div>
+          <div class="field">
+            <label for="id_email">Email</label>
+            {{ form.email }}
+            {% if form.email.errors %}<div class="field-errors">{{ form.email.errors }}</div>{% endif %}
+          </div>
+          <div class="field">
+            <label for="id_phone">Phone</label>
+            {{ form.phone }}
+            {% if form.phone.errors %}<div class="field-errors">{{ form.phone.errors }}</div>{% endif %}
+          </div>
+          <div class="field field-full">
+            <label for="id_password">Password</label>
+            {{ form.password }}
+            <span class="field-hint">Use at least 10 characters.</span>
+            {% if form.password.errors %}<div class="field-errors">{{ form.password.errors }}</div>{% endif %}
+          </div>
+        </div>
+
+        {% if registration_type == 'organisation' %}
+          <h2 style="margin-top: 16px;">Your organisation</h2>
+          <div class="form-grid">
+            <div class="field field-full">
+              <label for="id_organisation_name">Organisation name</label>
+              {{ form.organisation_name }}
+              {% if form.organisation_name.errors %}<div class="field-errors">{{ form.organisation_name.errors }}</div>{% endif %}
+            </div>
+            <div class="field">
+              <label for="id_business_type">Business type</label>
+              {{ form.business_type }}
+            </div>
+            <div class="field">
+              <label for="id_organisation_phone">Organisation phone</label>
+              {{ form.organisation_phone }}
+              {% if form.organisation_phone.errors %}<div class="field-errors">{{ form.organisation_phone.errors }}</div>{% endif %}
+            </div>
+            <div class="field field-full">
+              <label for="id_address_line">Address</label>
+              {{ form.address_line }}
+            </div>
+            <div class="field">
+              <label for="id_city">City</label>
+              {{ form.city }}
+            </div>
+            <div class="field">
+              <label for="id_state">State</label>
+              {{ form.state }}
+            </div>
+            <div class="field">
+              <label for="id_postal_code">Postal code</label>
+              {{ form.postal_code }}
+            </div>
+            <div class="field field-full">
+              <label><input type="checkbox" name="terms" required {% if form.terms.value %}checked{% endif %} /> I agree to the terms of service.</label>
+              {% if form.terms.errors %}<div class="field-errors">{{ form.terms.errors }}</div>{% endif %}
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="form-actions">
+          <button class="button button-primary" type="submit">{% if registration_type == 'client' %}Create client account{% else %}Register organisation{% endif %}</button>
+        </div>
+      </form>
+      <p class="field-hint" style="margin: 18px 0 0;">
+        Already registered? <a class="text-link" href="{% if registration_type == 'client' %}{% url 'login' %}?as=client{% else %}{% url 'login' %}?as=organisation{% endif %}">Log in</a>
+      </p>
+    </div>
+  </div>
+</section>
+{% if registration_type == 'client' %}
+<script>
+  (() => {
+    const input = document.getElementById("id_org_code");
+    const preview = document.getElementById("org-preview");
+    const error = document.getElementById("org-lookup-error");
+    let timer;
+    input.addEventListener("input", () => {
+      window.clearTimeout(timer);
+      preview.hidden = true;
+      error.hidden = true;
+      const code = input.value.trim();
+      if (!code) return;
+      timer = window.setTimeout(async () => {
+        try {
+          const response = await fetch(`/api/orgs/lookup/?code=${encodeURIComponent(code)}`, { headers: { Accept: "application/json" } });
+          if (!response.ok) throw new Error("not_found");
+          const organisation = await response.json();
+          const location = [organisation.city, organisation.state].filter(Boolean).join(", ");
+          preview.textContent = location ? `Joining ${organisation.name}, ${location}` : `Joining ${organisation.name}`;
+          preview.hidden = false;
+        } catch {
+          error.hidden = false;
+        }
+      }, 250);
+    });
+  })();
+</script>
+{% endif %}
+{% endblock %}
