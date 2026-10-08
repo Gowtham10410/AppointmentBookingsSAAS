@@ -1,0 +1,27 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Booking confirmed{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width: 720px;">
+    <div class="success-box">
+      <span class="eyebrow" style="background: rgba(15,123,83,0.12); color: var(--success);">Confirmed</span>
+      <h1 style="font-size: 2.5rem; margin: 16px 0 10px;">Your appointment is confirmed.</h1>
+      <p>We have reserved your place and sent the booking details to your email.</p>
+
+      <ul class="list" style="margin-top: 24px;">
+        <li><strong>Reference:</strong> {{ booking.reference }}</li>
+        <li><strong>Service:</strong> {{ booking.service.name }}</li>
+        <li><strong>Specialist:</strong> {{ booking.staff.name }}</li>
+        <li><strong>Date:</strong> {{ booking.date }}</li>
+        <li><strong>Time:</strong> {{ booking.start_time }}</li>
+      </ul>
+
+      <div style="margin-top: 22px; display: flex; gap: 12px; flex-wrap: wrap;">
+        <a href="/" class="cta">Back home</a>
+        <a href="/book/" class="secondary">Book another slot</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

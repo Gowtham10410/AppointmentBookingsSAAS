@@ -1,0 +1,100 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Book an appointment{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container booking-shell">
+    <div class="panel">
+      <span class="eyebrow">Book now</span>
+      <h2 style="margin: 14px 0 18px; font-size: 2rem; letter-spacing: -0.05em;">Choose your appointment</h2>
+
+      <form method="get" action="/book/">
+        <div class="field">
+          <label for="service">Service</label>
+          <select id="service" name="service" onchange="this.form.submit()">
+            <option value="">Select a service</option>
+            {% for service in services %}
+              <option value="{{ service.pk }}" {% if selected_service and selected_service.pk == service.pk %}selected{% endif %}>{{ service.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="staff">Doctor / specialist</label>
+          <select id="staff" name="staff" onchange="this.form.submit()">
+            <option value="">Select a specialist</option>
+            {% for staff in staff_members %}
+              <option value="{{ staff.pk }}" {% if selected_staff and selected_staff.pk == staff.pk %}selected{% endif %}>{{ staff.name }}{% if staff.specialization %} — {{ staff.specialization }}{% endif %}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="date">Date</label>
+          <input type="date" id="date" name="date" value="{{ selected_date|default:'' }}" onchange="this.form.submit()" />
+        </div>
+      </form>
+
+      {% if selected_service and selected_staff and selected_date %}
+        <div style="margin-top: 20px;">
+          <h3 style="margin: 0 0 12px;">Available slots</h3>
+          {% if slots %}
+          <div class="slot-grid">
+            {% for slot in slots %}
+              <label class="slot">
+                <input type="radio" name="start_time" value="{{ slot.start_time }}" form="booking-form" />
+                {{ slot.start_time }}
+              </label>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="alert">No availability is currently open for this specialist on that day. Please choose another date or time.</div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="panel">
+      <span class="eyebrow">Appointment details</span>
+      <h3 style="margin: 14px 0 18px; font-size: 1.6rem; letter-spacing: -0.04em;">Complete your booking</h3>
+
+      {% if errors %}
+        <div class="alert">
+          {% for error in errors %}
+            <div>{{ error }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form id="booking-form" method="post" action="/book/">
+        {% csrf_token %}
+        <input type="hidden" name="service" value="{{ selected_service.pk|default:'' }}" />
+        <input type="hidden" name="staff" value="{{ selected_staff.pk|default:'' }}" />
+        <input type="hidden" name="date" value="{{ selected_date|default:'' }}" />
+
+        <div class="field">
+          <label for="customer_name">Full name</label>
+          <input id="customer_name" name="customer_name" type="text" placeholder="Your full name" required />
+        </div>
+
+        <div class="field">
+          <label for="customer_email">Email</label>
+          <input id="customer_email" name="customer_email" type="email" placeholder="you@example.com" required />
+        </div>
+
+        <div class="field">
+          <label for="customer_phone">Phone</label>
+          <input id="customer_phone" name="customer_phone" type="tel" placeholder="9876543210" required />
+        </div>
+
+        <div class="field">
+          <label for="start_time">Selected slot</label>
+          <input id="start_time" name="start_time" type="time" step="1800" required value="09:00" />
+        </div>
+
+        <button class="cta" type="submit" style="width: 100%;">Confirm appointment</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

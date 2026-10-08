@@ -30,16 +30,16 @@ M1 must test both paths: empty schema and a database populated using the pre-CR-
 | `backend/accounts/migrations/` | Linear schema and data migrations; fresh/existing paths; backfill owners, clients, staff and tenant FKs | High | M1 |
 | `backend/accounts/services/org_code.py` (new) | Prefix/alphabet generation, collision retry, normalizer and immutable-code enforcement | Medium | M1 |
 | `backend/accounts/services/email_tokens.py` (new) | Hash, issue, invalidate, consume and expire purpose-scoped tokens | High | M1–M2 |
-| `backend/accounts/permissions.py` (new) | Verified-user, client, owner/admin authorization | High | M1 |
-| `backend/accounts/tenancy.py` or shared tenant module (new) | `TenantQuerySet.for_org()`, `TenantScopedMixin`, router introspection support | High | M1 |
+| `backend/accounts/tenancy.py` (new) | `TenantQuerySet.for_org()`, `TenantScopedMixin`, verified/client/admin permissions and router introspection support | High | M1 |
 | `backend/scheduling/models.py` | Add organisation FKs; Staff nullable user/name/phone; Booking client/creator/cancellation metadata; remove cancel token; preserve active-slot uniqueness | High | M1 |
 | `backend/scheduling/migrations/` | Backfill Staff names, tenant IDs and legacy booking client identities before non-null constraints | High | M1 |
-| `backend/scheduling/services.py` | Derive policy/timezone from organisation; add day result/states; enforce tenant invariant; client-bound booking and authorized cancel while retaining Staff-first lock | Critical | M3 |
+| `backend/scheduling/tenancy.py` (new) | Shared `assert_same_tenant()` invariant used by slot generation and booking validation | High | M1, M3 |
+| `backend/scheduling/services.py` | Derive policy/timezone from organisation; add day result/states; enforce tenant invariant; client-bound booking and authorized cancel while retaining Staff-first lock | Critical | M1, M3 |
 | `backend/scheduling/tests/` | Tenant, migration, day-status/state, timezone, privacy, conflict, lock-order and concurrency regression tests | Critical | M1, M3 |
-| `backend/dashboard/serializers.py` | Replace public customer-supplied booking fields with client-bound serializers; add tenant-scoped org/client/admin representations | High | M2–M3 |
-| `backend/dashboard/views.py` | Replace public flows with org lookup, auth/verification/profile/password, tenant booking and admin endpoints | Critical | M2–M3 |
-| `backend/dashboard/urls.py` and `backend/config/urls.py` | Register CR-01 routes, remove obsolete token lookup/public booking paths, preserve healthz only for infrastructure | High | M2–M3 |
-| `backend/dashboard/tests/test_api.py` | Replace public no-login tests; add endpoint auth, wrong-portal, enumeration, tenant/privacy matrix coverage | Critical | M2–M3 |
+| `backend/dashboard/serializers.py` | Replace public customer-supplied booking fields with client-bound serializers; add tenant-scoped org/client/admin representations | High | M1–M3 |
+| `backend/dashboard/views.py` | Require verified client role and tenant-scope existing catalogue/slot/booking lookups; add org lookup, auth/verification/profile/password and admin APIs | Critical | M1–M3 |
+| `backend/dashboard/urls.py` and `backend/config/urls.py` | Register CR-01 routes, remove obsolete token lookup/cancellation paths, preserve healthz only for infrastructure | High | M1–M3 |
+| `backend/dashboard/tests/test_api.py` | Tenant-scoped catalogue/slot and authenticated booking tests; later wrong-portal, enumeration and full tenant/privacy matrix | Critical | M1–M3 |
 | `backend/dashboard/tests/test_templates.py` | Replace legacy no-login templates tests if templates remain; CR-01 product UI moves to Next.js | Medium | M4 |
 | `backend/dashboard/templates/dashboard/base.html` | Remove API-health link and old public nav; retire or reduce templates after Next routes exist | Medium | M4 |
 | `backend/dashboard/templates/dashboard/home.html` | Remove fake 4.9/5 statistic and clinic copy; replaced by CR-01 salon home in frontend | Medium | M4 |

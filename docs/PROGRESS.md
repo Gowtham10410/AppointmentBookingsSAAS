@@ -104,9 +104,13 @@ Bootstrap phase started. Repo skeleton, project docs and a MySQL bootstrap confi
 - Verification: review documentation diff and `git diff --check`; confirm no product-code paths changed.
 
 ### M1 — Tenancy data model and Org Code
-- Add Organisation and EmailToken models, user role/verification/organisation fields, tenant FKs, data migration, tenant queryset/mixins, permissions and tenant-aware factories/admin.
-- Risk: data migration on existing rows and preserving the Staff-first booking lock while changing required relationships.
-- Verification: migrate empty DB and prior-release fixture DB; tenant/org-code/token tests; router-introspection test; `pytest --cov`, Ruff and mypy.
+- [x] Add Organisation and EmailToken models, user role/verification/organisation fields, tenant FKs, migration/backfill, tenant queryset/mixins, permissions, admin registrations and tenant-aware factories.
+- [x] Preserve historical booking snapshots and the Staff-first lock; backfill Staff names before detaching old staff logins; remove cancellation-token storage/routes.
+- [x] Scope existing catalogue, staff, slot and booking endpoints to verified clients and their organisation; add router-introspection and tenant-isolation regressions.
+- [x] Verify empty and populated prior-release migrations on SQLite; 43 backend tests pass and all new Org Code/token/tenant helper modules have 100% coverage.
+- [ ] Verify both migration paths on MySQL 8/InnoDB; Docker Engine was unavailable in this environment.
+- Verification run: `python -m pytest -q --cov=accounts.services.org_code --cov=accounts.services.email_tokens --cov=accounts.tenancy --cov=scheduling.tenancy --cov-report=term-missing` (43 passed; each selected module 100%); `python -m ruff check .` (clean); `python -m mypy .` (clean); `python manage.py makemigrations --check --dry-run --settings=config.settings.test` (no changes); `python manage.py check --settings=config.settings.test` (no issues).
+- Risk: production MySQL DDL/index behavior remains unverified until a MySQL 8/InnoDB service is available. The owner relation is nullable at the database layer only to bootstrap the circular owner/organisation pair; M2 registration must set it before transaction commit.
 
 ### M2 — Accounts and verification
 - Add Org Code lookup, registration for both portals, verification/resend, portal-aware login, profile/org/password endpoints, emails and stale-unverified purge command; regenerate OpenAPI/types.

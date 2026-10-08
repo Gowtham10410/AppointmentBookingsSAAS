@@ -1,46 +1,3 @@
-## Decision 19 — Give Staff profiles an independent display name
-- Decision: Add required `Staff.name` and backfill it from the linked legacy user's full name or email before detaching staff login accounts.
-- Reason: Staff become non-login profiles, but booking cards, slot selection and admin views still need a stable display name independent of a User relation.
-- Alternatives considered: Keep deriving names from `Staff.user`; rejected because the new model permits `user=NULL`.
-## Decision 11 — Move from single-tenant to Organisation tenancy
-- Decision: Each business is an `Organisation`; all users, staff, services and bookings belong to exactly one organisation.
-- Reason: Salons need isolated customer and schedule data while sharing one product deployment.
-- Alternatives considered: Continue single-tenant; rejected because it cannot support multiple independent salons.
-
-## Decision 12 — Require verified client accounts and Org Codes
-- Decision: Replace public no-login booking with verified client registration using the organisation's unique Org Code.
-- Reason: The salon serves existing customers and needs bookings attached to a durable client identity and organisation.
-- Alternatives considered: Public booking with customer form fields; rejected because tenant membership and client booking history would be unverifiable.
-
-## Decision 13 — Replace Admin/Staff roles with org_admin/client
-- Decision: Use `org_admin` and `client` login roles; Staff are non-login profiles managed by the organisation owner.
-- Reason: The requested product has two portals and does not require individual staff authentication.
-- Alternatives considered: Preserve staff logins; rejected as unnecessary scope and UI complexity.
-
-## Decision 14 — Link bookings to clients and preserve snapshots
-- Decision: Each booking references a same-organisation client and also stores immutable customer detail snapshots.
-- Reason: Client identity enables privacy-safe booking lists while snapshots preserve historical details after profile edits.
-- Alternatives considered: Store only free-form booking details; rejected because identity and organisation membership could drift.
-
-## Decision 15 — Replace cancellation tokens with account permissions
-- Decision: Clients cancel their own bookings and organisation admins manage bookings in their tenant; remove `cancel_token`.
-- Reason: Verified accounts provide ownership checks without a bearer cancellation token.
-- Alternatives considered: Keep token cancellation; rejected because account-based authorization is now available.
-
-## Decision 16 — Move booking rules to Organisation settings
-- Decision: Buffer, lead time, booking window and timezone are stored per organisation; environment values seed defaults for new organisations.
-- Reason: Different salons need independent scheduling policies.
-- Alternatives considered: Retain global environment settings; rejected because one business's settings would affect every tenant.
-
-## Decision 17 — Use green for booked/confirmed slots
-- Decision: Render booked and own-booking slots as green cards, with a distinct accent ring for the client's own booking; use slate for completed, red for no-show and grey for cancelled.
-- Reason: The requested calendar makes booked availability immediately scannable while preserving status distinctions.
-- Alternatives considered: Hide or strike through booked slots; rejected because clients need to see taken times without seeing other clients' identities.
-
-## Decision 18 — Permit explicit duplicate-email feedback at registration
-- Decision: Registration may return `email_taken`; login, resend and forgot-password remain generic and avoid account enumeration.
-- Reason: The registration UX needs actionable correction when a user submits an already-used address, while recovery endpoints must not expose account existence.
-- Alternatives considered: Make registration fully generic; deferred because it creates a less clear onboarding error and CR-01 explicitly permits this trade-off.
 # Decisions log
 
 ## Decision 1 — Move from Django templates to Next.js frontend
@@ -91,4 +48,59 @@
 ## Decision 10 — Accept both `HH:MM` and `HH:MM:SS` values in the slot engine
 - Decision: Normalise all incoming slot times via a parser that accepts both common string forms produced by Django/DRF and business inputs.
 - Reason: DRF serialisation can surface a `time` object as `09:00:00`, and the slot engine must treat that as equivalent to `09:00` during booking validation.
-- Alternatives considered: Force the frontend to emit only `HH:MM` strings; reject because it creates a brittle contract between API payloads and backend validation.
+- Alternatives considered: Force the frontend to emit only `HH:MM` strings; reject because it creates a brittle contract between the frontend and the slot engine.
+
+## Decision 11 — Move from single-tenant to Organisation tenancy
+- Decision: Each business is an `Organisation`; all users, staff, services and bookings belong to exactly one organisation.
+- Reason: Salons need isolated customer and schedule data while sharing one product deployment.
+- Alternatives considered: Continue single-tenant; rejected because it cannot support multiple independent salons.
+
+## Decision 12 — Require verified client accounts and Org Codes
+- Decision: Replace public no-login booking with verified client registration using the organisation's unique Org Code.
+- Reason: The salon serves existing customers and needs bookings attached to a durable client identity and organisation.
+- Alternatives considered: Public booking with customer form fields; rejected because tenant membership and client booking history would be unverifiable.
+
+## Decision 13 — Replace Admin/Staff roles with org_admin/client
+- Decision: Use `org_admin` and `client` login roles; Staff are non-login profiles managed by the organisation owner.
+- Reason: The requested product has two portals and does not require individual staff authentication.
+- Alternatives considered: Preserve staff logins; rejected as unnecessary scope and UI complexity.
+
+## Decision 14 — Link bookings to clients and preserve snapshots
+- Decision: Each booking references a same-organisation client and also stores immutable customer detail snapshots.
+- Reason: Client identity enables privacy-safe booking lists while snapshots preserve historical details after profile edits.
+- Alternatives considered: Store only free-form booking details; rejected because identity and organisation membership could drift.
+
+## Decision 15 — Replace cancellation tokens with account permissions
+- Decision: Clients cancel their own bookings and organisation admins manage bookings in their tenant; remove `cancel_token`.
+- Reason: Verified accounts provide ownership checks without a bearer cancellation token.
+- Alternatives considered: Keep token cancellation; rejected because account-based authorization is now available.
+
+## Decision 16 — Move booking rules to Organisation settings
+- Decision: Buffer, lead time, booking window and timezone are stored per organisation; environment values seed defaults for new organisations.
+- Reason: Different salons need independent scheduling policies.
+- Alternatives considered: Retain global environment settings; rejected because one business's settings would affect every tenant.
+
+## Decision 17 — Use green for booked/confirmed slots
+- Decision: Render booked and own-booking slots as green cards, with a distinct accent ring for the client's own booking; use slate for completed, red for no-show and grey for cancelled.
+- Reason: The requested calendar makes booked availability immediately scannable while preserving status distinctions.
+- Alternatives considered: Hide or strike through booked slots; rejected because clients need to see taken times without seeing other clients' identities.
+
+## Decision 18 — Permit explicit duplicate-email feedback at registration
+- Decision: Registration may return `email_taken`; login, resend and forgot-password remain generic and avoid account enumeration.
+- Reason: Registration needs actionable correction for a reused address, while recovery endpoints must not expose account existence.
+- Alternatives considered: Make registration fully generic; deferred because CR-01 permits this explicit trade-off.
+
+## Decision 19 — Give Staff profiles an independent display name
+- Decision: Add required `Staff.name` and backfill it from the linked legacy user's full name or email before detaching staff login accounts.
+- Reason: Staff become non-login profiles, but booking cards, slot selection and admin views still need a stable display name independent of a User relation.
+- Alternatives considered: Keep deriving names from `Staff.user`; rejected because the new model permits `user=NULL`.
+
+## Decision 20 — Bootstrap the circular owner/organisation relationship transactionally
+- Decision: Keep `User.organisation` non-null and allow `Organisation.owner` to be database-nullable only during creation; owner-registration code must fill `owner` before its transaction commits.
+- Reason: MySQL does not defer foreign-key checks, and both the owner user and organisation reference each other. A transient nullable owner is required to create both rows atomically without allowing a persisted owner to have no tenant.
+- Alternatives considered: Make `User.organisation` nullable; rejected because authenticated tenant derivation requires it on every user. Remove the owner relation; rejected because CR-01 requires the owner identity on Organisation.
+
+## Decision 21 — Scope legacy catalogue routes before tenant registration
+- Decision: Require verified client authentication on existing service, staff and slot routes and scope each read through `TenantManager.for_org()` before M2 can create multiple organisations.
+- Reason: Leaving the bootstrap public catalogue endpoints unchanged would expose all tenant services and staff as soon as registration creates a second organisation.
+- Alternatives considered: Wait until M3 to secure these existing endpoints; rejected because M2 would already introduce cross-tenant data exposure.

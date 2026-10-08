@@ -18,7 +18,7 @@ A booking app for beauty parlours, salons and similar businesses. Each organisat
 **Out of scope:** payments, ML/forecasting, SMS, rescheduling UI, recurring appointments, clients belonging to multiple organisations, staff logins, email change, social login. Record future ideas in `docs/BACKLOG.md`.
 
 ## 4. Domain model changes
-**Organisation (`accounts.Organisation`):** name (≤120), business type (`salon`, `beauty_parlour`, `spa`, `barbershop`, `clinic`, `other`), unique immutable `org_code`, phone, address, city, state, postal code, country (India default), IANA timezone (Asia/Kolkata default), buffer minutes (0–60, default 10), minimum lead time (0–1440, default 30), booking window (1–180 days, default 30), active flag, created timestamp, and protected OneToOne owner.
+**Organisation (`accounts.Organisation`):** name (≤120), business type (`salon`, `beauty_parlour`, `spa`, `barbershop`, `clinic`, `other`), unique immutable `org_code`, phone, address, city, state, postal code, country (India default), IANA timezone (Asia/Kolkata default), buffer minutes (0–60, default 10), minimum lead time (0–1440, default 30), booking window (1–180 days, default 30), active flag, created timestamp, and protected OneToOne owner. The owner relation is nullable only at the database layer to bootstrap the owner↔organisation cycle; owner-registration services must assign it before the surrounding transaction commits.
 
 **User (`accounts.User`):** globally unique, case-insensitive email login; `full_name`, phone, role (`org_admin` or `client`), required organisation FK, nullable `email_verified_at`. Unverified users cannot log in.
 

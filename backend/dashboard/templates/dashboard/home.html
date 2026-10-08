@@ -1,0 +1,76 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Home | Smart Appointment Scheduler{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">Better scheduling, fewer conflicts</span>
+      <h1>Smart appointment booking that feels effortless.</h1>
+      <p>Give customers a fast, clear way to book with the right clinician, while keeping business schedules conflict-free and easy to manage.</p>
+      <div class="hero-actions">
+        <a class="cta" href="/book/">Book a visit</a>
+        <a class="secondary" href="#services">Browse services</a>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <strong>4.9/5</strong>
+          <span class="muted">average experience</span>
+        </div>
+        <div class="stat-card">
+          <strong>{{ staff_members|length }}</strong>
+          <span class="muted">active specialists</span>
+        </div>
+        <div class="stat-card">
+          <strong>{{ services|length }}</strong>
+          <span class="muted">care options</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="eyebrow">Live availability</div>
+      <h3 style="margin: 14px 0 10px; font-size: 1.8rem; letter-spacing: -0.05em;">Today’s schedule</h3>
+      <ul class="list">
+        {% for item in recent_bookings %}
+        <li>
+          <div class="chip" style="margin-bottom: 6px;">{{ item.reference }}</div>
+          <div><strong>{{ item.service.name }}</strong> with {{ item.staff.name }}</div>
+          <div class="muted">{{ item.date }} at {{ item.start_time }}</div>
+        </li>
+        {% empty %}
+        <li class="muted">No confirmed bookings yet. Your clinic is ready for the first appointment.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Popular services</span>
+        <h2 style="margin: 12px 0 0; font-size: 2rem; letter-spacing: -0.04em;">Tailored care that fits your day</h2>
+      </div>
+      <a href="/book/" class="secondary">Schedule a consultation</a>
+    </div>
+
+    <div class="service-grid">
+      {% for service in services %}
+      <article class="service-item">
+        <div class="chip">{{ service.duration_minutes }} min</div>
+        <h3>{{ service.name }}</h3>
+        <p>{{ service.description|default:'Professional care designed around your schedule.' }}</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 18px;">
+          <strong>₹{{ service.price }}</strong>
+          <a href="/book/?service={{ service.pk }}" class="cta" style="padding: 10px 14px;">Book</a>
+        </div>
+      </article>
+      {% empty %}
+      <div class="card" style="padding: 20px; width: 100%;">No services are active right now.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
