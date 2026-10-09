@@ -1,0 +1,31 @@
+while registering as a organisation when clicked register organisation after entering all the details it shows an error:
+OperationalError at /register/organisation/
+no such table: accounts_organisation
+Request Method:	POST
+Request URL:	http://127.0.0.1:8000/register/organisation/
+Django Version:	5.2.6
+Exception Type:	OperationalError
+Exception Value:	
+no such table: accounts_organisation
+Exception Location:	D:\Django training\SmartBookings(proto)\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py, line 360, in execute
+Raised during:	dashboard.views.register_organisation
+Python Executable:	D:\Django training\SmartBookings(proto)\.venv\Scripts\python.exe
+Python Version:	3.12.9
+Python Path:	
+['D:\\Django training\\SmartBookings(proto)\\backend',
+ 'C:\\Users\\Gowtham\\AppData\\Local\\Programs\\Python\\Python312\\python312.zip',
+ 'C:\\Users\\Gowtham\\AppData\\Local\\Programs\\Python\\Python312\\DLLs',
+ 'C:\\Users\\Gowtham\\AppData\\Local\\Programs\\Python\\Python312\\Lib',
+ 'C:\\Users\\Gowtham\\AppData\\Local\\Programs\\Python\\Python312',
+ 'D:\\Django training\\SmartBookings(proto)\\.venv',
+ 'D:\\Django training\\SmartBookings(proto)\\.venv\\Lib\\site-packages']
+Server time:	Fri, 09 Oct 2026 13:15:36 +0530
+
+
+
+
+i want the error to get resolved.
+when the register orhanisation is clicked it needs to have a id created and login should happen.
+when i use the organisation owner mobile number and the password which has been set i need to be able to login and see dashboard as a admin and it should have a organisation code with that code the clinet should also be able to register and login and see the organisation in which they are part of.
+so the admin has a different interface dashboard and the client has a different interface dashboard.
+i need to register and login shoul work seamlessly.
